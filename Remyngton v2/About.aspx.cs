@@ -1,0 +1,48 @@
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace Remyngton_v2
+{
+    public partial class About : Page
+    {
+        public static Dictionary<string, double> Players = new Dictionary<string, double>();
+        public static bool teamVS;
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(MatchData());
+            int teamType = Convert.ToInt32(lobbyData.games[0].team_type);
+            if (teamType == 0) // Head to head = 0, Tag Co-op = 1, Team vs = 2, Tag Team vs = 3
+            {
+                teamVS = false;
+            }
+            else
+            {
+                teamVS = true;
+            }
+            RemyngtonGeneral.ReadPlayers(MatchData());
+            RemyngtonGeneral.CalculateAccuracies(lobbyData);
+            Console.WriteLine(Players);
+        }
+
+        protected string MatchData()
+        {
+            var jsonUrlMP = "https://osu.ppy.sh/api/get_match?k=0db10863146202c12ca6f6987c98f1ec9d629421&mp=" + Request.QueryString["mp"]; //the link to the mp data in json format
+            var jsonString = new WebClient().DownloadString(jsonUrlMP); //downloads the json data
+            //JObject json = JObject.Parse(jsonString);   //converts json data to json object
+            return jsonString;
+        }
+
+        protected void CalcScorePoints(JObject matchdata)
+        {
+
+        }
+        
+    }
+}
