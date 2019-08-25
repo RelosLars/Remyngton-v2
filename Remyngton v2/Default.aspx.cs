@@ -39,23 +39,41 @@ namespace Remyngton_v2
             //14 - 17 - 20 - 23 +3 
             //27 - 31 - 35 - 39 +4
 
-            //for(double i = 0; i < maxPlayers; i++)
-            //{
-            //    double points = 0;
-            //    double stage = 1;
+            for (double i = 0; i < maxPlayers; i++)
+            {
+                double points = 0;
+                //double stage = 1;
+                double test = i;
+                while (test != 0)
+                {
+                    if (test >= 12)
+                    {
+                        points += 4;
+                        test -= 1;
+                    }
+                    else if (test >= 8)
+                    {
+                        points += 3;
+                        test -= 1;
+                    }
+                    else if (test >= 4)
+                    {
+                        points += 2;
+                        test -= 1;
+                    }
+                    else if (test < 4)
+                    {
+                        points += 1;
+                        test -= 1;
+                    }
+                }
 
-            //    if(i / 4 > 1)
-            //    {
-            //        stage++;
-            //        points += (i*stage)
-            //    }
-            //    else if(i / 8 > 1)
-            //    {
-            //        stage++;
-            //    }
+                Console.WriteLine($"Points: {points}");
+                Points.Add(points);
+                //Console.WriteLine(Points);
+                //Console.WriteLine(i);
 
-            //    Points.Add(i);
-            //}
+            }
             AbsoluteRemyngton.PointDistribution = Points;
 
             //puts the multiplayer ID and the player number in the query string so that the values are accessible in the other page

@@ -13,6 +13,8 @@ namespace Remyngton_v2
         public static void CalculatePointsAbsolute(string category, Dictionary<string, double> results, bool ascending)
         {
             List<KeyValuePair<string, double>> orderedRanking = getRanking(results, ascending);
+            
+
 
             //if(category != "misscount")
             //{
