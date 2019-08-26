@@ -20,7 +20,7 @@ namespace Remyngton_v2
 
             DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(jsonString);
 
-            Dictionary<string, double> Players = new Dictionary<string, double>(); //only temporarily used for optimazation purposes
+            List<KeyValuePair<string, double>> Players = new List<KeyValuePair<string, double>>(); //only temporarily used for optimazation purposes
 
             for (int gameNumber = 0; gameNumber < lobbyData.games.Count(); gameNumber++) // loops through each map (game)
             {
@@ -31,7 +31,8 @@ namespace Remyngton_v2
 
                     try
                     {
-                        Players.Add(userID, 0); //adds userID to the dictionary, afterwards this dictionary will be used to fill the About.Players dictionary with Usernames
+                        About.PlayerTracker.Add(userID, 0); //adds userID to the list, afterwards this list will be used to fill the About.Players list with Usernames
+                        //Players.Add(new KeyValuePair<string, double>(userID, 0)); 
                     }
                     catch (System.ArgumentException)
                     {
@@ -41,17 +42,19 @@ namespace Remyngton_v2
 
                 }
             }
-            About.Players = Players;
-            //foreach(KeyValuePair<string, double> player in Players)
+            //works
+            //foreach (KeyValuePair<string, double> player in Players)
             //{
             //    var userJsonString = "https://osu.ppy.sh/api/get_user?k=0db10863146202c12ca6f6987c98f1ec9d629421&u=" + player.Key;
             //    var jsonStringUser = new WebClient().DownloadString(userJsonString); //downloads the json data of the user
             //    JArray userJsonArray = JArray.Parse(jsonStringUser);
             //    var userName = (string)userJsonArray[0].SelectToken("username");
 
-            //    About.Players.Add(userName, 0); //adds player to the dictionary where all players of a match are stored
+            //    About.Players.Add(new KeyValuePair<string, double>(userName, 0)); //adds player to the dictionary where all players of a match are stored
 
             //}
+
+            About.Players = Players;
         }
 
         public static double[,] CalculateScore(DeserializeMatch lobbyData) 
@@ -116,10 +119,11 @@ namespace Remyngton_v2
 
         public static double[,] CalculateAccuracies(DeserializeMatch lobbyData)
         {
+            About.Players = About.PlayerTracker.ToList();
             double[,] Accuracies = new double[About.Players.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++) 
             {
-                Dictionary<string, double> Accs = new Dictionary<string, double>();
+                List<KeyValuePair<string, double>> Accs = new List<KeyValuePair<string, double>>();
                 for (int Player = 0; Player < About.Players.Count; Player++)
                 {
                     try
@@ -135,7 +139,7 @@ namespace Remyngton_v2
 
                         Accuracies[Player, Mapnumber] = acc;
                         string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
-                        Accs.Add(userID, acc);
+                        Accs.Add(new KeyValuePair<string, double>(userID, acc));
 
 
                     }

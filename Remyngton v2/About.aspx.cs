@@ -12,7 +12,8 @@ namespace Remyngton_v2
 {
     public partial class About : Page
     {
-        public static Dictionary<string, double> Players = new Dictionary<string, double>();
+        public static List<KeyValuePair<string, double>> Players = new List<KeyValuePair<string, double>>();
+        public static Dictionary<string, double> PlayerTracker = new Dictionary<string, double>(); //keeps track of all players who have played a map in this lobby, player who leave stay in this dictionary
         public static bool teamVS;
         protected void Page_Load(object sender, EventArgs e)
         {
