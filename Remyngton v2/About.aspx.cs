@@ -12,8 +12,8 @@ namespace Remyngton_v2
 {
     public partial class About : Page
     {
-        public static List<KeyValuePair<string, double>> Players = new List<KeyValuePair<string, double>>();
-        public static Dictionary<string, double> PlayerTracker = new Dictionary<string, double>(); //keeps track of all players who have played a map in this lobby, player who leave stay in this dictionary
+        //public static List<KeyValuePair<string, double>> Players = new List<KeyValuePair<string, double>>();
+        public static Dictionary<string, double> PlayerTracker = new Dictionary<string, double>(); //keeps track of all players and their points who have played a map in this lobby, player who leave stay in this dictionary
         public static bool teamVS;
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -27,9 +27,12 @@ namespace Remyngton_v2
             {
                 teamVS = true;
             }
-            RemyngtonGeneral.ReadPlayers(MatchData());
+            RemyngtonGeneral.ReadTotalPlayers(MatchData());
             RemyngtonGeneral.CalculateAccuracies(lobbyData);
-            Console.WriteLine(Players);
+            RemyngtonGeneral.CalculateMaxcombo(lobbyData);
+            RemyngtonGeneral.CalculateMisscount(lobbyData);
+            RemyngtonGeneral.CalculateScore(lobbyData);
+            Console.WriteLine(PlayerTracker);
         }
 
         protected string MatchData()

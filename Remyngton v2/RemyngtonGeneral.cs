@@ -10,12 +10,8 @@ namespace Remyngton_v2
 {
     public static class RemyngtonGeneral
     {
-        public static string Score = "score";
-        public static string Combo = "combo";
-        public static string Misscount = "misscount";
-        public static string Accuracy = "acc";
 
-        public static void ReadPlayers(string jsonString)
+        public static void ReadTotalPlayers(string jsonString)
         {
 
             DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(jsonString);
@@ -42,7 +38,7 @@ namespace Remyngton_v2
 
                 }
             }
-            //works
+            //converts userID to username
             //foreach (KeyValuePair<string, double> player in Players)
             //{
             //    var userJsonString = "https://osu.ppy.sh/api/get_user?k=0db10863146202c12ca6f6987c98f1ec9d629421&u=" + player.Key;
@@ -54,77 +50,131 @@ namespace Remyngton_v2
 
             //}
 
-            About.Players = Players;
         }
 
-        public static double[,] CalculateScore(DeserializeMatch lobbyData) 
+        public static Dictionary<string, double> ReadCurrentMapPlayers(string jsonString, int mapnumber)
         {
-            double[,] Scores = new double[About.Players.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
-            for(int Player = 0; Player < About.Players.Count; Player++)
+            Dictionary<string, double> currentMapPlayers = new Dictionary<string, double>();
+            DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(jsonString);
+            for (int playerNumber = 0; playerNumber < lobbyData.games[mapnumber].scores.Count(); playerNumber++) //in the selected map (game) it looks through each player who played in that map
             {
-                for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
+                //optimization possibility, track which users have already been added and don't request their names if they have already been added to reduce api requests.
+                var userID = lobbyData.games[mapnumber].scores[playerNumber].user_id;
+
+                try
                 {
-                    try
-                    {
-                        Scores[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
-                    }
-                    catch(Exception)
-                    {
-                        Scores[Player, Mapnumber] = 0;
-                    }
+                    currentMapPlayers.Add(userID, 0); //adds userID to the list, afterwards this list will be used to fill the About.Players list with Usernames
+                                                        //Players.Add(new KeyValuePair<string, double>(userID, 0)); 
                 }
+                catch (System.ArgumentException)
+                {
+                    //if the player already exists in the list, this exception will get thrown
+                }
+
+
             }
-            return Scores;
+            
+            return currentMapPlayers;
         }
 
-        public static double[,] CalculateMaxcombo(DeserializeMatch lobbyData)
+        public static void CalculateScore(DeserializeMatch lobbyData)
         {
-            double[,] Maxcombos = new double[About.Players.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
-            for (int Player = 0; Player < About.Players.Count; Player++)
+            //double[,] Scores = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
+            for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
             {
-                for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
+                List<KeyValuePair<string, double>> scores = new List<KeyValuePair<string, double>>();
+                //calculate players
+                for (int Player = 0; Player < About.PlayerTracker.Count; Player++)
                 {
                     try
                     {
-                        Maxcombos[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].maxcombo);
+                        //Scores[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
+                        var score = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
+
+                        string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
+                        scores.Add(new KeyValuePair<string, double>(userID, score));
                     }
                     catch (Exception)
                     {
-                        Maxcombos[Player, Mapnumber] = 0;
+                        //Scores[Player, Mapnumber] = 0;
                     }
                 }
+                PointCalculation.CalculatePointsAbsolute(scores, true);
             }
-            return Maxcombos;
         }
 
-        public static double[,] CalculateMisscount(DeserializeMatch lobbyData)
+        public static void CalculateMaxcombo(DeserializeMatch lobbyData)
         {
-            double[,] Misscounts = new double[About.Players.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
-            for (int Player = 0; Player < About.Players.Count; Player++)
+            //double[,] Maxcombos = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
+            for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
             {
-                for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
+                List<KeyValuePair<string, double>> combos = new List<KeyValuePair<string, double>>();
+                //calculate players
+                for (int Player = 0; Player < About.PlayerTracker.Count; Player++)
                 {
                     try
                     {
-                        Misscounts[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].countmiss);
+                        //Maxcombos[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].maxcombo);
+                        var maxcombo = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].maxcombo);
+
+                        string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
+                        combos.Add(new KeyValuePair<string, double>(userID, maxcombo));
                     }
                     catch (Exception)
                     {
-                        Misscounts[Player, Mapnumber] = 9999;
+                        //Maxcombos[Player, Mapnumber] = 0;
                     }
                 }
+                PointCalculation.CalculatePointsAbsolute(combos, true);
             }
-            return Misscounts;
         }
 
-        public static double[,] CalculateAccuracies(DeserializeMatch lobbyData)
+        public static void CalculateMisscount(DeserializeMatch lobbyData)
         {
-            About.Players = About.PlayerTracker.ToList();
-            double[,] Accuracies = new double[About.Players.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
+            //double[,] Misscounts = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
+            for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
+            {
+                List<KeyValuePair<string, double>> Misses = new List<KeyValuePair<string, double>>();
+                //calculate players
+                for (int Player = 0; Player < About.PlayerTracker.Count; Player++)
+                {
+                    try
+                    {
+                        //Misscounts[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].countmiss);
+
+                        var misscount = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].countmiss);
+
+                        string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
+                        Misses.Add(new KeyValuePair<string, double>(userID, misscount));
+                    }
+                    catch (Exception)
+                    {
+                        //Misscounts[Player, Mapnumber] = 9999;
+                    }
+                }
+                PointCalculation.CalculatePointsAbsolute(Misses, false); //false because in the case of misscounts lower = better
+            }
+        }
+
+        
+        public static void CalculateAccuracies(DeserializeMatch lobbyData)
+        {
+            //About.Players = About.PlayerTracker.ToList();
+
+            //double[,] Accuracies = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++) 
             {
                 List<KeyValuePair<string, double>> Accs = new List<KeyValuePair<string, double>>();
-                for (int Player = 0; Player < About.Players.Count; Player++)
+                /* Inaccuray points work like follows:
+                misscount * 3
+                50 count * 2
+                100 count *1
+                sum of those is inaccuracy points. Done to make the acc value absolute and not exponential (diff from 95 to 100 bigger than 70 to 75), makes relativ points calculation easier
+                 */
+                List<KeyValuePair<string, double>> InaccuracyPointsBlue = new List<KeyValuePair<string, double>>(); 
+                List<KeyValuePair<string, double>> InaccuracyPointsRed = new List<KeyValuePair<string, double>>();
+                //calculate players
+                for (int Player = 0; Player < About.PlayerTracker.Count; Player++)
                 {
                     try
                     {
@@ -137,22 +187,63 @@ namespace Remyngton_v2
                         var objectsCount = countmiss + count50 + count100 + count300;
                         var acc = ((count300 * 3) + count100 + (count50 * 0.5)) / (objectsCount * 3); //calculates acc as percentage
 
-                        Accuracies[Player, Mapnumber] = acc;
+                        //Accuracies[Player, Mapnumber] = acc;
                         string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
-                        Accs.Add(new KeyValuePair<string, double>(userID, acc));
+                        if (About.teamVS)
+                        {
+                            var inaccuracyPoints = (countmiss * 3) + (count50 * 2) + count100;
+                            if(lobbyData.games[Mapnumber].scores[Player].team == "1")
+                            {
+                                InaccuracyPointsBlue.Add(new KeyValuePair<string, double>(userID, inaccuracyPoints));
+                            }
+                            else
+                            {
+                                InaccuracyPointsRed.Add(new KeyValuePair<string, double>(userID, inaccuracyPoints));
+                            }
+                        }
+                        else
+                        {
+                            Accs.Add(new KeyValuePair<string, double>(userID, acc));
+                        }
+                        
 
 
                     }
                     catch (Exception)
                     {
-                        Accuracies[Player, Mapnumber] = 0;
+                        //Accuracies[Player, Mapnumber] = 0; //accuracies may not be needed, calculation still needs to get done in other categories.
                     }
                 }
                 //here the scoring type gets determined
-                AbsoluteRemyngton.CalculatePointsAbsolute(Accuracy, Accs, true); //still needs to do sorting
+                if(About.teamVS)
+                {
+                    double blue = 0;
+                    double red = 0;
+                    foreach (var score in InaccuracyPointsBlue)
+                    {
+                        blue += score.Value;
+                    }
+                    foreach (var score in InaccuracyPointsRed)
+                    {
+                        red += score.Value;
+                    }
+                    if(blue > red) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
+                    {
+                        PointCalculation.CalculatePointsRelative(red, blue);
+                    }
+                    else
+                    {
+                        PointCalculation.CalculatePointsRelative(blue, red);
+                    }
+                    
+                }
+                else
+                {
+                    PointCalculation.CalculatePointsAbsolute(Accs, true); //optimization, only parse acc itself or player ID, both is not needed
+                }
+                
 
             }
-            return Accuracies;
         }
 
 

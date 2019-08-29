@@ -74,7 +74,7 @@ namespace Remyngton_v2
                 //Console.WriteLine(i);
 
             }
-            AbsoluteRemyngton.PointDistribution = Points;
+            PointCalculation.PointDistribution = Points;
 
             //puts the multiplayer ID and the player number in the query string so that the values are accessible in the other page
             Response.Redirect($"About.aspx?mp={mpID}");
