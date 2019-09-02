@@ -32,7 +32,7 @@ namespace Remyngton_v2
                         pointHistory.Users[playerNumber].UserID = userID; //null point exception
                         pointHistory.Users[playerNumber].Map[gameNumber].MapID = lobbyData.games[gameNumber].beatmap_id;
 
-                        //Players.Add(new KeyValuePair<string, double>(userID, 0)); 
+                        //Players.Add(new KeyValuePair<string, double>(userID, 0)); f
                     }
                     catch (System.ArgumentException)
                     {
