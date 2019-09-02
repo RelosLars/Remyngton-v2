@@ -14,8 +14,12 @@ namespace Remyngton_v2
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            List<string> tournamentList = new List<string>() {"Remyngton", "OSCT 2018", "Switzerlan" }; //examples
+            
+            Tournaments.DataSource = tournamentList;
+            Tournaments.DataBind();
         }
+
 
         protected void GetMatch(object sender, EventArgs e)
         {
@@ -79,6 +83,20 @@ namespace Remyngton_v2
             //puts the multiplayer ID and the player number in the query string so that the values are accessible in the other page
             Response.Redirect($"About.aspx?mp={mpID}");
 
+        }
+
+        protected void isTournament_CheckedChanged(object sender, EventArgs e)
+        {
+            if (isTournament.Checked)
+            {
+                PlayerCount.Visible = true;
+                Tournaments.Visible = true;
+            }
+            else
+            {
+                PlayerCount.Visible = false;
+                Tournaments.Visible = false;
+            }
         }
     }
 }

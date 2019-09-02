@@ -33,6 +33,15 @@ namespace Remyngton_v2
             RemyngtonGeneral.CalculateMisscount(lobbyData);
             RemyngtonGeneral.CalculateScore(lobbyData);
             Console.WriteLine(PlayerTracker);
+            if (lobbyData.match.end_time != null) //if the match has ended
+            {
+                ArchiveMatch(lobbyData);
+            }
+        }
+
+        private void ArchiveMatch(DeserializeMatch lobbyData)
+        {
+            
         }
 
         protected string MatchData()
