@@ -196,6 +196,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="DeserializeMatch.cs" />
+    <Compile Include="PointsResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemyngtonGeneral.cs" />
     <Compile Include="Site.Master.cs">

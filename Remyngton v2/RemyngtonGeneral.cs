@@ -8,12 +8,13 @@ using System.Web;
 
 namespace Remyngton_v2
 {
-    public static class RemyngtonGeneral
+    public class RemyngtonGeneral
     {
+        PointsResult pointHistory = new PointsResult();
 
-        public static void ReadTotalPlayers(string jsonString)
+        public void ReadTotalPlayers(string jsonString)
         {
-
+            
             DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(jsonString);
 
             List<KeyValuePair<string, double>> Players = new List<KeyValuePair<string, double>>(); //only temporarily used for optimazation purposes
@@ -24,10 +25,13 @@ namespace Remyngton_v2
                 {
                     //optimization possibility, track which users have already been added and don't request their names if they have already been added to reduce api requests.
                     var userID = lobbyData.games[gameNumber].scores[playerNumber].user_id;
-
+                    
                     try
                     {
                         About.PlayerTracker.Add(userID, 0); //adds userID to the list, afterwards this list will be used to fill the About.Players list with Usernames
+                        pointHistory.Users[playerNumber].UserID = userID; //null point exception
+                        pointHistory.Users[playerNumber].Map[gameNumber].MapID = lobbyData.games[gameNumber].beatmap_id;
+
                         //Players.Add(new KeyValuePair<string, double>(userID, 0)); 
                     }
                     catch (System.ArgumentException)
@@ -38,6 +42,7 @@ namespace Remyngton_v2
 
                 }
             }
+            Console.WriteLine(pointHistory);
             //converts userID to username
             //foreach (KeyValuePair<string, double> player in Players)
             //{
@@ -52,7 +57,7 @@ namespace Remyngton_v2
 
         }
 
-        public static Dictionary<string, double> ReadCurrentMapPlayers(string jsonString, int mapnumber)
+        public Dictionary<string, double> ReadCurrentMapPlayers(string jsonString, int mapnumber)
         {
             Dictionary<string, double> currentMapPlayers = new Dictionary<string, double>();
             DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(jsonString);
@@ -77,7 +82,7 @@ namespace Remyngton_v2
             return currentMapPlayers;
         }
 
-        public static void CalculateScore(DeserializeMatch lobbyData)
+        public void CalculateScore(DeserializeMatch lobbyData)
         {
             //double[,] Scores = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
@@ -103,7 +108,7 @@ namespace Remyngton_v2
             }
         }
 
-        public static void CalculateMaxcombo(DeserializeMatch lobbyData)
+        public void CalculateMaxcombo(DeserializeMatch lobbyData)
         {
             //double[,] Maxcombos = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
@@ -129,7 +134,7 @@ namespace Remyngton_v2
             }
         }
 
-        public static void CalculateMisscount(DeserializeMatch lobbyData)
+        public void CalculateMisscount(DeserializeMatch lobbyData)
         {
             //double[,] Misscounts = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
@@ -157,7 +162,7 @@ namespace Remyngton_v2
         }
 
         
-        public static void CalculateAccuracies(DeserializeMatch lobbyData)
+        public void CalculateAccuracies(DeserializeMatch lobbyData)
         {
             //About.Players = About.PlayerTracker.ToList();
 

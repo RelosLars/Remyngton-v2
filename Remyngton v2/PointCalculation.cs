@@ -15,7 +15,7 @@ namespace Remyngton_v2
             List<string> orderedRanking = getOrderedResults(results, ascending);
 
             Console.WriteLine(orderedRanking);
-
+            
             for(int i = 0; i < results.Count; i++)
             {
                 

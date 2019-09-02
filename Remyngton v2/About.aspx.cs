@@ -17,7 +17,13 @@ namespace Remyngton_v2
         public static bool teamVS;
         protected void Page_Load(object sender, EventArgs e)
         {
+            
             DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(MatchData());
+
+            PointsResult pointsResult = new PointsResult();
+            RemyngtonGeneral match = new RemyngtonGeneral();
+
+
             int teamType = Convert.ToInt32(lobbyData.games[0].team_type);
             if (teamType == 0) // Head to head = 0, Tag Co-op = 1, Team vs = 2, Tag Team vs = 3
             {
@@ -27,16 +33,20 @@ namespace Remyngton_v2
             {
                 teamVS = true;
             }
-            RemyngtonGeneral.ReadTotalPlayers(MatchData());
-            RemyngtonGeneral.CalculateAccuracies(lobbyData);
-            RemyngtonGeneral.CalculateMaxcombo(lobbyData);
-            RemyngtonGeneral.CalculateMisscount(lobbyData);
-            RemyngtonGeneral.CalculateScore(lobbyData);
+
+            match.ReadTotalPlayers(MatchData());
+            match.CalculateAccuracies(lobbyData);
+            match.CalculateMaxcombo(lobbyData);
+            match.CalculateMisscount(lobbyData);
+            match.CalculateScore(lobbyData);
+
             Console.WriteLine(PlayerTracker);
             if (lobbyData.match.end_time != null) //if the match has ended
             {
                 ArchiveMatch(lobbyData);
             }
+
+            PlayerTracker = new Dictionary<string, double>(); //clears values from playertracker
         }
 
         private void ArchiveMatch(DeserializeMatch lobbyData)
