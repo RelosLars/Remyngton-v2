@@ -7,31 +7,21 @@ namespace Remyngton_v2
 {
     public class PointsResult
     {
-        public Users[] Users { get; set; }
+        public List<Map> map = new List<Map>();
     }
 
-    //public class PointHistory
-    //{
-    //    public Users[] User { get; set; }
-    //}
-
-    public class Users
+    public class Map
     {
-        public string UserID { get; set; }
-        public Maps[] Map { get; set; }
+        public string beatmap_id { get; set; }
+        public List<User> users = new List<User>();
     }
 
-    public class Maps
+    public class User
     {
-        public string MapID { get; set; }
-        public Category[] Category { get; set; }
-    }
-
-    public class Category
-    {
-        public double Score { get; set; }
-        public double Maxcombo { get; set; }
-        public double Accuracy { get; set; }
-        public double Misscount { get; set; }
+        public string user_id { get; set; }
+        public string scorePoints { get; set; }
+        public string maxcomboPoints { get; set; }
+        public string accPoints { get; set; }
+        public string countmissPoints { get; set; }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -17,8 +19,11 @@ namespace Remyngton_v2
         public static bool teamVS;
         protected void Page_Load(object sender, EventArgs e)
         {
+            try
+            {
+                DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(MatchData());
             
-            DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(MatchData());
+            
 
             PointsResult pointsResult = new PointsResult();
             RemyngtonGeneral match = new RemyngtonGeneral();
@@ -43,15 +48,34 @@ namespace Remyngton_v2
             Console.WriteLine(PlayerTracker);
             if (lobbyData.match.end_time != null) //if the match has ended
             {
-                ArchiveMatch(lobbyData);
+                ArchiveMatch(RemyngtonGeneral.pointHistory, lobbyData.match.match_id, lobbyData.match.name);
             }
 
             PlayerTracker = new Dictionary<string, double>(); //clears values from playertracker
+            }
+            catch (JsonSerializationException)
+            {
+                Response.Redirect("Default.aspx");
+            }
         }
 
-        private void ArchiveMatch(DeserializeMatch lobbyData)
+        private void ArchiveMatch(PointsResult pointHistory, string matchNumber, string matchName)
         {
-            
+            var jsonString = JsonConvert.SerializeObject(pointHistory);
+            var test = jsonString.Replace(@"\", "");
+            //JObject jsonObject = new JObject(pointHistory);
+
+
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+
+            using (StreamWriter sw = new StreamWriter($@"C:\Users\Lars Soler\Desktop\Past Matches\{ matchNumber } {matchName}.json"))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, pointHistory);
+            }
+
+            Console.WriteLine();
         }
 
         protected string MatchData()
