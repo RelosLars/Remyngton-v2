@@ -1,0 +1,21 @@
+{
+  "Teams": [
+    "Team 1",
+    [
+      {
+        "Teamname": "Airmen men",
+        "Player 1": "7209831",
+        "Player 2": "7045024"
+      }
+
+    ],
+    "Team 2",
+    [
+      {
+        "Teamname": "McKensyngton",
+        "Player 1": "2643216",
+        "Player 2": "4025457"
+      }
+    ]
+  ]
+}

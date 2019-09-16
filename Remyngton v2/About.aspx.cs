@@ -69,7 +69,7 @@ namespace Remyngton_v2
             JsonSerializer serializer = new JsonSerializer();
             serializer.NullValueHandling = NullValueHandling.Ignore;
 
-            using (StreamWriter sw = new StreamWriter($@"C:\Users\Lars Soler\Desktop\Past Matches\{ matchNumber } {matchName}.json"))
+            using (StreamWriter sw = new StreamWriter(Server.MapPath($"~/Past Matches/{ matchNumber } {matchName}.json")))
             using (JsonWriter writer = new JsonTextWriter(sw))
             {
                 serializer.Serialize(writer, pointHistory);

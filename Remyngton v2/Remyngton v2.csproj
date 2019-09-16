@@ -172,6 +172,7 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeserializeTeams.cs" />
     <Compile Include="PointCalculation.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="About.aspx.cs">
@@ -227,7 +228,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Past Matches\" />
-    <Folder Include="Tournaments\" />
+    <Folder Include="Tournament Teamlists\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

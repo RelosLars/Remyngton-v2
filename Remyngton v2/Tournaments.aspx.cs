@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -20,7 +21,8 @@ namespace Remyngton_v2
             if (FileUploadTeamlist.HasFile)
             {
                 //FileUpload1.FileName = TournamentName.Text + " Team List";
-                savePath += $"{TournamentName.Text}  Team List.json";
+                savePath = Server.MapPath("~/Tournament Teamlists/" + TournamentName.Text + " Team List.json");
+
                 FileUploadTeamlist.SaveAs(savePath);
             }
         }
