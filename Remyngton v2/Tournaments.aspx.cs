@@ -13,5 +13,16 @@ namespace Remyngton_v2
         {
 
         }
+
+        protected void CreateTournament_Click(object sender, EventArgs e)
+        {
+            string savePath = Directory.GetCurrentDirectory();
+            if (FileUploadTeamlist.HasFile)
+            {
+                //FileUpload1.FileName = TournamentName.Text + " Team List";
+                savePath += $"{TournamentName.Text}  Team List.json";
+                FileUploadTeamlist.SaveAs(savePath);
+            }
+        }
     }
 }
