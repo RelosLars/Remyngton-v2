@@ -6,6 +6,10 @@
     <br />
     <asp:TextBox ID="TournamentName" runat="server"></asp:TextBox>
     <br />
+    <br />
+    <asp:Label ID="Label4" runat="server" Text="*Start date"></asp:Label>
+    <asp:Calendar ID="StartDate" runat="server"></asp:Calendar>
+    <br />
     <asp:Label ID="Label2" runat="server" Text="List of Teams"></asp:Label>
     <asp:FileUpload ID="FileUploadTeamlist" runat="server" />
     <br />

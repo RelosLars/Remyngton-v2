@@ -31,6 +31,24 @@ namespace Remyngton_v2 {
         protected global::System.Web.UI.WebControls.TextBox TournamentName;
         
         /// <summary>
+        /// Label4-Steuerelement
+        /// </summary>
+        /// <remarks>
+        /// Automatisch generiertes Feld
+        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label4;
+        
+        /// <summary>
+        /// StartDate-Steuerelement
+        /// </summary>
+        /// <remarks>
+        /// Automatisch generiertes Feld
+        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Calendar StartDate;
+        
+        /// <summary>
         /// Label2-Steuerelement
         /// </summary>
         /// <remarks>
