@@ -1,0 +1,1 @@
+﻿select TeamlistLink from tbl_Tournaments where TournamentName='Remyngton'

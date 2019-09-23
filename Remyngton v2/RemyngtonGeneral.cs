@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -12,6 +13,13 @@ namespace Remyngton_v2
     {
         public static PointsResult pointHistory = new PointsResult();
         enum Category { Score, Maxcombo, Misscount, Accuracy };
+        //StreamReader sr = new StreamReader(FileLoc);
+        
+
+        public DeserializeTeams teamList { get; set; }
+
+        
+
         public void ReadTotalPlayers(string jsonString)
         {
             
@@ -31,12 +39,15 @@ namespace Remyngton_v2
 
                     try
                     {
+
                         //these 3 codelines need to happen before adding the users to the playertracker, because that will throw an exception if the user already exists and thus skip the rest of the try block
                         User user = new User();
                         user.user_id = userID;
                         map.users.Add(user);
 
                         About.PlayerTracker.Add(userID, 0); //adds userID to the list, afterwards this list will be used to fill the About.Players list with Usernames
+
+                        
 
 
                         
@@ -100,24 +111,51 @@ namespace Remyngton_v2
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
             {
                 List<KeyValuePair<string, double>> scores = new List<KeyValuePair<string, double>>();
+                List<KeyValuePair<string, double>> teamScores = new List<KeyValuePair<string, double>>();
                 //calculate players
                 for (int Player = 0; Player < About.PlayerTracker.Count; Player++)
                 {
                     try
                     {
+                        
                         //Scores[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
                         var score = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
 
                         string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
                         scores.Add(new KeyValuePair<string, double>(userID, score));
+
+
+                        if (Tournament.CustomTeams)
+                        {
+                            for (int i = 0; i < teamList.Teams.Length; i++)
+                            {
+                                if (teamList.Teams[i].Player1 == userID || teamList.Teams[i].Player2 == userID)
+                                {
+                                    teamList.Teams[i].TeamScore += score;
+                                }
+                            }
+                        }
                     }
                     catch (Exception)
                     {
                         //Scores[Player, Mapnumber] = 0;
                     }
                 }
-                var points = PointCalculation.CalculatePointsAbsolute(scores, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
+                foreach(var team in teamList.Teams)
+                {
+                    teamScores.Add(new KeyValuePair<string, double>(team.Teamname, team.TeamScore));
+                }
 
+                List<KeyValuePair<string, double>> points;
+                if (Tournament.CustomTeams)
+                {
+                    points = PointCalculation.CalculatePointsAbsolute(teamScores, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
+                }
+                else
+                {
+                    points = PointCalculation.CalculatePointsAbsolute(scores, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
+                }
+                Console.WriteLine(points);
                 if (About.teamVS)
                 {
                     double blue = 0;

@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -12,12 +14,33 @@ namespace Remyngton_v2
 {
     public partial class _Default : Page
     {
+        public string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            List<string> tournamentList = new List<string>() {"Remyngton", "OSCT 2018", "Switzerlan" }; //examples
-            
-            Tournaments.DataSource = tournamentList;
-            Tournaments.DataBind();
+            if (!Page.IsPostBack)
+            {
+                List<string> tournamentList = new List<string>();
+
+                string selectStatement = "select TournamentName from tbl_Tournaments";
+
+                SqlConnection con = new SqlConnection(connectionString);
+                SqlCommand cmd = new SqlCommand(selectStatement, con);
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    tournamentList.Add(reader["TournamentName"].ToString());
+                }
+                con.Close();
+
+
+
+
+                Tournaments.DataSource = tournamentList;
+                Tournaments.DataBind();
+            }
         }
 
 
@@ -25,6 +48,37 @@ namespace Remyngton_v2
         {
             var url = new Uri(MpLink.Text);
             var mpID = url.Segments.Last(); //takes the last substring from the url (in this case the multiplayer ID)
+
+            Tournament.TournamentName = Tournaments.SelectedValue;
+
+            string selectStatement = $"select TeamlistLink from tbl_Tournaments where TournamentName='{Tournament.TournamentName}'";
+
+            SqlConnection con = new SqlConnection(connectionString);
+            SqlCommand cmd = new SqlCommand(selectStatement, con);
+            
+            con.Open();
+            string TeamlistLink = cmd.ExecuteScalar().ToString();
+            //SqlDataReader reader = cmd.ExecuteReader();
+
+            //var TeamlistLink = reader["TeamlistLink"].ToString();
+
+            if (TeamlistLink == "") //because in the database null is stored as string
+            {
+                Tournament.CustomTeams = false;
+            }
+            else
+            {
+                Tournament.CustomTeams = true;
+                Tournament.TeamlistLink = TeamlistLink;
+            }
+
+
+            //while (reader.Read())
+            //{
+            //    //tournamentList.Add(reader["TeamlistLink"].ToString());
+            //}
+            con.Close();
+
 
             List<double> Points = new List<double>();
 

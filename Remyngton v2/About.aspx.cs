@@ -21,42 +21,57 @@ namespace Remyngton_v2
         {
             try
             {
-                DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(MatchData());
+                DeserializeMatch lobbyData = JsonConvert.DeserializeObject<DeserializeMatch>(MatchDataJsonString());
+                
             
-            
 
-            PointsResult pointsResult = new PointsResult();
-            RemyngtonGeneral match = new RemyngtonGeneral();
+                PointsResult pointsResult = new PointsResult();
+                RemyngtonGeneral match = new RemyngtonGeneral();
 
+                if (Tournament.CustomTeams)
+                {
+                    string jsonString = GetJsonStringFromFile(Tournament.TeamlistLink);
+                    match.teamList = JsonConvert.DeserializeObject<DeserializeTeams>(jsonString);
+                }
 
-            int teamType = Convert.ToInt32(lobbyData.games[0].team_type);
-            if (teamType == 0) // Head to head = 0, Tag Co-op = 1, Team vs = 2, Tag Team vs = 3
-            {
-                teamVS = false;
-            }
-            else
-            {
-                teamVS = true;
-            }
+                Console.WriteLine(match.teamList);
 
-            match.ReadTotalPlayers(MatchData());
-            match.CalculateAccuracies(lobbyData);
-            match.CalculateMaxcombo(lobbyData);
-            match.CalculateMisscount(lobbyData);
-            match.CalculateScore(lobbyData);
+                int teamType = Convert.ToInt32(lobbyData.games[0].team_type);
+                if (teamType == 0) // Head to head = 0, Tag Co-op = 1, Team vs = 2, Tag Team vs = 3
+                {
+                    teamVS = false;
+                }
+                else
+                {
+                    teamVS = true;
+                }
 
-            Console.WriteLine(PlayerTracker);
-            if (lobbyData.match.end_time != null) //if the match has ended
-            {
-                ArchiveMatch(RemyngtonGeneral.pointHistory, lobbyData.match.match_id, lobbyData.match.name);
-            }
+                match.ReadTotalPlayers(MatchDataJsonString());
+                match.CalculateAccuracies(lobbyData);
+                match.CalculateMaxcombo(lobbyData);
+                match.CalculateMisscount(lobbyData);
+                match.CalculateScore(lobbyData);
 
-            PlayerTracker = new Dictionary<string, double>(); //clears values from playertracker
+                Console.WriteLine(PlayerTracker);
+                if (lobbyData.match.end_time != null) //if the match has ended
+                {
+                    ArchiveMatch(RemyngtonGeneral.pointHistory, lobbyData.match.match_id, lobbyData.match.name);
+                }
+
+                PlayerTracker = new Dictionary<string, double>(); //clears values from playertracker
             }
             catch (JsonSerializationException)
             {
                 Response.Redirect("Default.aspx");
             }
+        }
+
+        public string GetJsonStringFromFile(string path)
+        {
+            string jsonString = "";
+            StreamReader sr = new StreamReader(path);
+            jsonString = sr.ReadToEnd();
+            return jsonString;
         }
 
         private void ArchiveMatch(PointsResult pointHistory, string matchNumber, string matchName)
@@ -78,7 +93,7 @@ namespace Remyngton_v2
             Console.WriteLine();
         }
 
-        protected string MatchData()
+        protected string MatchDataJsonString()
         {
             var jsonUrlMP = "https://osu.ppy.sh/api/get_match?k=0db10863146202c12ca6f6987c98f1ec9d629421&mp=" + Request.QueryString["mp"]; //the link to the mp data in json format
             var jsonString = new WebClient().DownloadString(jsonUrlMP); //downloads the json data

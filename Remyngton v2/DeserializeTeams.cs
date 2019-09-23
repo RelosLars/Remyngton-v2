@@ -15,5 +15,7 @@ namespace Remyngton_v2
         public string Teamname { get; set; }
         public string Player1 { get; set; }
         public string Player2 { get; set; }
+        public double TeamScore { get; set; }
     }
+
 }

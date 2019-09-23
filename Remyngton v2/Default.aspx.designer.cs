@@ -22,15 +22,6 @@ namespace Remyngton_v2 {
         protected global::System.Web.UI.WebControls.CheckBox isTournament;
         
         /// <summary>
-        /// PlayerCount-Steuerelement
-        /// </summary>
-        /// <remarks>
-        /// Automatisch generiertes Feld
-        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox PlayerCount;
-        
-        /// <summary>
         /// Tournaments-Steuerelement
         /// </summary>
         /// <remarks>
@@ -38,6 +29,15 @@ namespace Remyngton_v2 {
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList Tournaments;
+        
+        /// <summary>
+        /// PlayerCount-Steuerelement
+        /// </summary>
+        /// <remarks>
+        /// Automatisch generiertes Feld
+        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox PlayerCount;
         
         /// <summary>
         /// MpLink-Steuerelement

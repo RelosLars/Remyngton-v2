@@ -6,12 +6,13 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data.SqlClient;
+using System.Configuration;
 
 namespace Remyngton_v2
 {
     public partial class Contact : Page
     {
-        public string connectionString = @"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename = C:\Users\Lars Soler\Source\Repos\Remyngton-v2\Remyngton v2\App_Data\Remyngton.mdf; Integrated Security = True";
+        public string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -21,46 +22,46 @@ namespace Remyngton_v2
         protected void CreateTournament_Click(object sender, EventArgs e)
         {
             string savePath;
+
+            string insertStatement = $"insert into tbl_Tournaments(TournamentName, StartDate, TeamlistLink, MappoolLink) \n values(@TournamentName, @StartDate, @savePath, @Mappool)";
+            SqlConnection con = new SqlConnection(connectionString);
+            SqlCommand cmd = new SqlCommand(insertStatement, con);
+            cmd.Parameters.AddWithValue("@TournamentName", TournamentName.Text);
+            cmd.Parameters.AddWithValue("@StartDate", StartDate.SelectedDate);
+
             if (FileUploadTeamlist.HasFile)
             {
-                //FileUpload1.FileName = TournamentName.Text + " Team List";
                 savePath = Server.MapPath("~/Tournament Teamlists/" + TournamentName.Text + " Team List.json");
-
-                
-                string insertStatement = $"insert into tbl_Tournaments(TournamentName, StartDate, TeamlistLink) \n values( '{TournamentName.Text}', @StartDate, '{savePath}')";
-                SqlConnection con = new SqlConnection(connectionString);
-                SqlCommand cmd = new SqlCommand(insertStatement, con);
-
-                cmd.Parameters.AddWithValue("@StartDate", StartDate.SelectedDate);
-                try
-                {
-                    con.Open();
-                    cmd.ExecuteNonQuery();
-                    con.Close();
-                    FileUploadTeamlist.SaveAs(savePath);
-                }
-                catch(Exception)
-                {
-
-                }
-                
+                cmd.Parameters.AddWithValue("@savePath", savePath);
+                FileUploadTeamlist.SaveAs(savePath);
+            }
+            else
+            {
+                cmd.Parameters.AddWithValue("@savePath", "NULL");
             }
 
-            if(FileUploadMappool.HasFile)
+            if (FileUploadMappool.HasFile)
             {
                 savePath = Server.MapPath("~/Tournament Mappools/" + TournamentName.Text + " Mappool.json");
-                string insertStatement = $"update tbl_Tournaments \n set MappoolLink='{savePath}' \n where TournamentName='{TournamentName.Text}'";
+                cmd.Parameters.AddWithValue("@Mappool", savePath);
+                FileUploadMappool.SaveAs(savePath);
+            }
+            else
+            {
+                cmd.Parameters.AddWithValue("@Mappool", "NULL");
+            }
 
-                SqlConnection con = new SqlConnection(connectionString);
-                SqlCommand cmd = new SqlCommand(insertStatement, con);
-
+            try
+            {
                 con.Open();
                 cmd.ExecuteNonQuery();
                 con.Close();
-                FileUploadMappool.SaveAs(savePath);
+                
             }
+            catch (ArgumentNullException)
+            {
 
-
+            }
         }
     }
 }
