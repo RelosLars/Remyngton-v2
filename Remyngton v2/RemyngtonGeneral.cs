@@ -32,35 +32,54 @@ namespace Remyngton_v2
                 Map map = new Map();
                 map.beatmap_id = lobbyData.games[gameNumber].beatmap_id;
 
-                for (int playerNumber = 0; playerNumber < lobbyData.games[gameNumber].scores.Count(); playerNumber++) //in the selected map (game) it looks through each player who played in that map
+
+                if (Tournament.CustomTeams)
                 {
-                    //optimization possibility, track which users have already been added and don't request their names if they have already been added to reduce api requests.
-                    var userID = lobbyData.games[gameNumber].scores[playerNumber].user_id;
-
-                    try
+                    foreach (var team in teamList.Teams)
                     {
+                        try
+                        {
+                            User Team = new User();
+                            Team.user_id = team.Teamname;
+                            map.users.Add(Team);
+                            About.PlayerTracker.Add(team.Teamname, 0);
+                            Console.WriteLine(About.PlayerTracker);
+                        }
+                        catch(System.ArgumentException)
+                        {
+                            //gets caught if team already exists in Playertracker
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    for (int playerNumber = 0; playerNumber < lobbyData.games[gameNumber].scores.Count(); playerNumber++) //in the selected map (game) it looks through each player who played in that map
+                    {
+                        //optimization possibility, track which users have already been added and don't request their names if they have already been added to reduce api requests.
+                        var userID = lobbyData.games[gameNumber].scores[playerNumber].user_id;
 
-                        //these 3 codelines need to happen before adding the users to the playertracker, because that will throw an exception if the user already exists and thus skip the rest of the try block
-                        User user = new User();
-                        user.user_id = userID;
-                        map.users.Add(user);
+                        try
+                        {
+                        
+                        
+                            //these 3 codelines need to happen before adding the users to the playertracker, because that will throw an exception if the user already exists and thus skip the rest of the try block
+                            User user = new User();
+                            user.user_id = userID;
+                            map.users.Add(user);
 
-                        About.PlayerTracker.Add(userID, 0); //adds userID to the list, afterwards this list will be used to fill the About.Players list with Usernames
-
+                            About.PlayerTracker.Add(userID, 0); //adds userID to the list, afterwards this list will be used to fill the About.Players list with Usernames
                         
 
+                            //Players.Add(new KeyValuePair<string, double>(userID, 0)); f
+                        }
+                        catch (System.ArgumentException)
+                        {
+                            //if the player already exists in the list, this exception will get thrown
+                        }
 
-                        
 
-
-                        //Players.Add(new KeyValuePair<string, double>(userID, 0)); f
                     }
-                    catch (System.ArgumentException)
-                    {
-                        //if the player already exists in the list, this exception will get thrown
-                    }
-
-
                 }
                 pointHistory.map.Add(map);
                 
@@ -122,7 +141,7 @@ namespace Remyngton_v2
                         var score = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
 
                         string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
-                        scores.Add(new KeyValuePair<string, double>(userID, score));
+                        
 
 
                         if (Tournament.CustomTeams)
@@ -134,6 +153,10 @@ namespace Remyngton_v2
                                     teamList.Teams[i].TeamScore += score;
                                 }
                             }
+                        }
+                        else
+                        {
+                            scores.Add(new KeyValuePair<string, double>(userID, score));
                         }
                     }
                     catch (Exception)
@@ -155,37 +178,49 @@ namespace Remyngton_v2
                 {
                     points = PointCalculation.CalculatePointsAbsolute(scores, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
                 }
-                Console.WriteLine(points);
-                if (About.teamVS)
-                {
-                    double blue = 0;
-                    double red = 0;
-                    foreach (var score in scores)
-                    {
-                        blue += score.Value;
-                    }
-                    foreach (var score in scores)
-                    {
-                        red += score.Value;
-                    }
-                    if (red > blue) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
-                    {
-                        PointCalculation.CalculatePointsRelative(red, blue);
-                    }
-                    else
-                    {
-                        PointCalculation.CalculatePointsRelative(blue, red);
-                    }
 
-                }
-                else
+                if(Tournament.CustomTeams)
                 {
                     for (int i = 0; i < points.Count; i++)
                     {
                         pointHistory.map[Mapnumber].users[i].scorePoints = points[i].Value.ToString();
                     }
                 }
+                else
+                {
+                    if (About.teamVS)
+                    {
+                        double blue = 0;
+                        double red = 0;
+                        foreach (var score in scores)
+                        {
+                            blue += score.Value;
+                        }
+                        foreach (var score in scores)
+                        {
+                            red += score.Value;
+                        }
+                        if (red > blue) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
+                        {
+                            PointCalculation.CalculatePointsRelative(red, blue);
+                        }
+                        else
+                        {
+                            PointCalculation.CalculatePointsRelative(blue, red);
+                        }
+
+                    }
+                    else
+                    {
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            pointHistory.map[Mapnumber].users[i].scorePoints = points[i].Value.ToString();
+                        }
+                    }
+                }
+                
             }
+            Console.WriteLine(pointHistory);
         }
 
         public void CalculateMaxcombo(DeserializeMatch lobbyData)
@@ -194,55 +229,97 @@ namespace Remyngton_v2
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
             {
                 List<KeyValuePair<string, double>> combos = new List<KeyValuePair<string, double>>();
+                List<KeyValuePair<string, double>> teamCombos = new List<KeyValuePair<string, double>>();
                 //calculate players
                 for (int Player = 0; Player < About.PlayerTracker.Count; Player++)
                 {
                     try
                     {
-                        //Maxcombos[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].maxcombo);
-                        var maxcombo = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].maxcombo);
+
+                        //Scores[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
+                        var maxcombo = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
 
                         string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
-                        combos.Add(new KeyValuePair<string, double>(userID, maxcombo));
+
+
+
+                        if (Tournament.CustomTeams)
+                        {
+                            for (int i = 0; i < teamList.Teams.Length; i++)
+                            {
+                                if (teamList.Teams[i].Player1 == userID || teamList.Teams[i].Player2 == userID)
+                                {
+                                    teamList.Teams[i].TeamScore += maxcombo;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            combos.Add(new KeyValuePair<string, double>(userID, maxcombo));
+                        }
                     }
                     catch (Exception)
                     {
-                        //Maxcombos[Player, Mapnumber] = 0;
+                        //Scores[Player, Mapnumber] = 0;
                     }
                 }
-                var points = PointCalculation.CalculatePointsAbsolute(combos, true, (int)Category.Maxcombo).ToList();
-
-                if (About.teamVS)
+                foreach (var team in teamList.Teams)
                 {
-                    double blue = 0;
-                    double red = 0;
-                    foreach (var score in combos)
-                    {
-                        blue += score.Value;
-                    }
-                    foreach (var score in combos)
-                    {
-                        red += score.Value;
-                    }
-                    if (red > blue) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
-                    {
-                        PointCalculation.CalculatePointsRelative(red, blue);
-                    }
-                    else
-                    {
-                        PointCalculation.CalculatePointsRelative(blue, red);
-                    }
+                    teamCombos.Add(new KeyValuePair<string, double>(team.Teamname, team.TeamScore));
+                }
 
+                List<KeyValuePair<string, double>> points;
+                if (Tournament.CustomTeams)
+                {
+                    points = PointCalculation.CalculatePointsAbsolute(teamCombos, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
                 }
                 else
                 {
+                    points = PointCalculation.CalculatePointsAbsolute(combos, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
+                }
 
+                if (Tournament.CustomTeams)
+                {
                     for (int i = 0; i < points.Count; i++)
                     {
                         pointHistory.map[Mapnumber].users[i].maxcomboPoints = points[i].Value.ToString();
                     }
                 }
+                else
+                {
+                    if (About.teamVS)
+                    {
+                        double blue = 0;
+                        double red = 0;
+                        foreach (var score in combos)
+                        {
+                            blue += score.Value;
+                        }
+                        foreach (var score in combos)
+                        {
+                            red += score.Value;
+                        }
+                        if (red > blue) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
+                        {
+                            PointCalculation.CalculatePointsRelative(red, blue);
+                        }
+                        else
+                        {
+                            PointCalculation.CalculatePointsRelative(blue, red);
+                        }
+
+                    }
+                    else
+                    {
+
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            pointHistory.map[Mapnumber].users[i].maxcomboPoints = points[i].Value.ToString();
+                        }
+                    }
+                }
             }
+
         }
 
         public void CalculateMisscount(DeserializeMatch lobbyData)
@@ -250,56 +327,91 @@ namespace Remyngton_v2
             //double[,] Misscounts = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++)
             {
-                List<KeyValuePair<string, double>> Misses = new List<KeyValuePair<string, double>>();
+                List<KeyValuePair<string, double>> misses = new List<KeyValuePair<string, double>>();
+                List<KeyValuePair<string, double>> teamMisses = new List<KeyValuePair<string, double>>();
                 //calculate players
                 for (int Player = 0; Player < About.PlayerTracker.Count; Player++)
                 {
                     try
                     {
-                        //Misscounts[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].countmiss);
 
-                        var misscount = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].countmiss);
+                        //Scores[Player, Mapnumber] = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
+                        var misscount = Convert.ToDouble(lobbyData.games[Mapnumber].scores[Player].score);
 
                         string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
-                        Misses.Add(new KeyValuePair<string, double>(userID, misscount));
+
+
+
+                        if (Tournament.CustomTeams)
+                        {
+                            for (int i = 0; i < teamList.Teams.Length; i++)
+                            {
+                                if (teamList.Teams[i].Player1 == userID || teamList.Teams[i].Player2 == userID)
+                                {
+                                    teamList.Teams[i].TeamScore += misscount;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            misses.Add(new KeyValuePair<string, double>(userID, misscount));
+                        }
                     }
                     catch (Exception)
                     {
-                        //Misscounts[Player, Mapnumber] = 9999;
+                        //Scores[Player, Mapnumber] = 0;
                     }
                 }
-                var points = PointCalculation.CalculatePointsAbsolute(Misses, false, (int)Category.Misscount).ToList(); //false because in the case of misscounts lower = better
-
-                if (About.teamVS)
+                List<KeyValuePair<string, double>> points;
+                if (Tournament.CustomTeams)
                 {
-                    double blue = 0;
-                    double red = 0;
-                    foreach (var score in Misses)
-                    {
-                        blue += score.Value;
-                    }
-                    foreach (var score in Misses)
-                    {
-                        red += score.Value;
-                    }
-                    if (blue > red) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
-                    {
-                        PointCalculation.CalculatePointsRelative(red, blue);
-                    }
-                    else
-                    {
-                        PointCalculation.CalculatePointsRelative(blue, red);
-                    }
-
+                    points = PointCalculation.CalculatePointsAbsolute(teamMisses, false, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
                 }
                 else
+                {
+                    points = PointCalculation.CalculatePointsAbsolute(misses, false, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
+                }
+
+                if (Tournament.CustomTeams)
                 {
                     for (int i = 0; i < points.Count; i++)
                     {
                         pointHistory.map[Mapnumber].users[i].countmissPoints = points[i].Value.ToString();
                     }
                 }
+                else
+                {
+                    if (About.teamVS)
+                    {
+                        double blue = 0;
+                        double red = 0;
+                        foreach (var score in misses)
+                        {
+                            blue += score.Value;
+                        }
+                        foreach (var score in misses)
+                        {
+                            red += score.Value;
+                        }
+                        if (blue > red) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
+                        {
+                            PointCalculation.CalculatePointsRelative(red, blue);
+                        }
+                        else
+                        {
+                            PointCalculation.CalculatePointsRelative(blue, red);
+                        }
+
+                    }
+                    else
+                    {
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            pointHistory.map[Mapnumber].users[i].countmissPoints = points[i].Value.ToString();
+                        }
+                    }
             }
+        }
         }
 
         
@@ -310,7 +422,8 @@ namespace Remyngton_v2
             //double[,] Accuracies = new double[About.PlayerTracker.Count, lobbyData.games.Count()]; // (Player | Score/Mapnumber) 
             for (int Mapnumber = 0; Mapnumber < lobbyData.games.Count(); Mapnumber++) 
             {
-                List<KeyValuePair<string, double>> Accs = new List<KeyValuePair<string, double>>();
+                List<KeyValuePair<string, double>> accs = new List<KeyValuePair<string, double>>();
+                List<KeyValuePair<string, double>> teamAccs = new List<KeyValuePair<string, double>>();
                 /* Inaccuray points work like follows:
                 misscount * 3
                 50 count * 2
@@ -335,22 +448,38 @@ namespace Remyngton_v2
 
                         //Accuracies[Player, Mapnumber] = acc;
                         string userID = lobbyData.games[Mapnumber].scores[Player].user_id;
-                        if (About.teamVS)
+
+                        if (Tournament.CustomTeams)
                         {
-                            var inaccuracyPoints = (countmiss * 3) + (count50 * 2) + count100;
-                            if(lobbyData.games[Mapnumber].scores[Player].team == "1")
+                            for (int i = 0; i < teamList.Teams.Length; i++)
                             {
-                                InaccuracyPointsBlue.Add(new KeyValuePair<string, double>(userID, inaccuracyPoints));
-                            }
-                            else
-                            {
-                                InaccuracyPointsRed.Add(new KeyValuePair<string, double>(userID, inaccuracyPoints));
+                                if (teamList.Teams[i].Player1 == userID || teamList.Teams[i].Player2 == userID)
+                                {
+                                    teamList.Teams[i].TeamScore += acc;
+                                }
                             }
                         }
                         else
                         {
-                            Accs.Add(new KeyValuePair<string, double>(userID, acc));
+                            accs.Add(new KeyValuePair<string, double>(userID, acc));
                         }
+                        //for relative scoring shenanigens
+                        //if (About.teamVS)
+                        //{
+                        //    var inaccuracyPoints = (countmiss * 3) + (count50 * 2) + count100;
+                        //    if(lobbyData.games[Mapnumber].scores[Player].team == "1")
+                        //    {
+                        //        InaccuracyPointsBlue.Add(new KeyValuePair<string, double>(userID, inaccuracyPoints));
+                        //    }
+                        //    else
+                        //    {
+                        //        InaccuracyPointsRed.Add(new KeyValuePair<string, double>(userID, inaccuracyPoints));
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    accs.Add(new KeyValuePair<string, double>(userID, acc));
+                        //}
                         
 
 
@@ -361,35 +490,54 @@ namespace Remyngton_v2
                     }
                 }
                 //here the scoring type gets determined, needs to still be implemented in scores/maxcombo/misscount
-                if(About.teamVS)
+
+                List<KeyValuePair<string, double>> points;
+                if (Tournament.CustomTeams)
                 {
-                    double blue = 0;
-                    double red = 0;
-                    foreach (var score in InaccuracyPointsBlue)
-                    {
-                        blue += score.Value;
-                    }
-                    foreach (var score in InaccuracyPointsRed)
-                    {
-                        red += score.Value;
-                    }
-                    if(blue > red) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
-                    {
-                        PointCalculation.CalculatePointsRelative(red, blue);
-                    }
-                    else
-                    {
-                        PointCalculation.CalculatePointsRelative(blue, red);
-                    }
-                    
+                    points = PointCalculation.CalculatePointsAbsolute(teamAccs, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
                 }
                 else
                 {
-                    var points = PointCalculation.CalculatePointsAbsolute(Accs, true, (int)Category.Accuracy).ToList();
+                    points = PointCalculation.CalculatePointsAbsolute(accs, true, (int)Category.Score).ToList(); //gets the points of each player for that specific map and puts that in the pointHistory object
+                }
 
+                if (Tournament.CustomTeams)
+                {
                     for (int i = 0; i < points.Count; i++)
                     {
                         pointHistory.map[Mapnumber].users[i].accPoints = points[i].Value.ToString();
+                    }
+                }
+                else
+                {
+                    if (About.teamVS)
+                    {
+                        double blue = 0;
+                        double red = 0;
+                        foreach (var score in InaccuracyPointsBlue)
+                        {
+                            blue += score.Value;
+                        }
+                        foreach (var score in InaccuracyPointsRed)
+                        {
+                            red += score.Value;
+                        }
+                        if(blue > red) //this is to make sure that the first value is always the bigger one (in case of misscount and acc its the smaller one)
+                        {
+                            PointCalculation.CalculatePointsRelative(red, blue);
+                        }
+                        else
+                        {
+                            PointCalculation.CalculatePointsRelative(blue, red);
+                        }
+                    
+                    }
+                    else
+                    {
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            pointHistory.map[Mapnumber].users[i].accPoints = points[i].Value.ToString();
+                        }
                     }
                 }
             }

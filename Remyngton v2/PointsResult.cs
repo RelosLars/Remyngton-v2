@@ -18,7 +18,7 @@ namespace Remyngton_v2
 
     public class User
     {
-        public string user_id { get; set; }
+        public string user_id { get; set; } //can also act as teamname
         public string scorePoints { get; set; }
         public string maxcomboPoints { get; set; }
         public string accPoints { get; set; }

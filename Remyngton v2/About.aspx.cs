@@ -51,6 +51,7 @@ namespace Remyngton_v2
                 match.CalculateMaxcombo(lobbyData);
                 match.CalculateMisscount(lobbyData);
                 match.CalculateScore(lobbyData);
+                
 
                 Console.WriteLine(PlayerTracker);
                 if (lobbyData.match.end_time != null) //if the match has ended

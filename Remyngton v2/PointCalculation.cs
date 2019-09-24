@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Remyngton_v2
 {
-    public static class PointCalculation
+    public static class PointCalculation //still need to handle equal scores
     {
         public static List<double> PointDistribution = new List<double> {}; //stores which rank gets how many points
 
