@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.UI;
+using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 
 namespace Remyngton_v2
@@ -51,8 +52,9 @@ namespace Remyngton_v2
                 match.CalculateMaxcombo(lobbyData);
                 match.CalculateMisscount(lobbyData);
                 match.CalculateScore(lobbyData);
-                
 
+                DisplaySimplyfiedPoints(match.GetSimplifiedPoints(RemyngtonGeneral.pointHistory)); 
+                
                 Console.WriteLine(PlayerTracker);
                 if (lobbyData.match.end_time != null) //if the match has ended
                 {
@@ -102,9 +104,80 @@ namespace Remyngton_v2
             return jsonString;
         }
 
-        protected void CalcScorePoints(JObject matchdata)
+        protected void DisplaySimplyfiedPoints(SimplifiedPoints points)
         {
+            for (int beatmap = 0; beatmap < points.beatmap.Count; beatmap++)
+            {
+                HtmlTable MapResultTable = new HtmlTable();
 
+                // Set the table's formatting-related properties.
+                MapResultTable.Border = 1;
+                MapResultTable.CellPadding = 3;
+                MapResultTable.CellSpacing = 3;
+                MapResultTable.BorderColor = "black";
+
+                MapResultTable.ID = "Map " + beatmap.ToString();
+
+                // Start adding content to the table.
+                HtmlTableRow row;
+                HtmlTableCell cell;
+                for (int i = -2; i < points.beatmap[beatmap].Participant.Count; i++)
+                {
+                    // Create a new row and set its background color.
+                    row = new HtmlTableRow();
+                    if(i == -2)
+                    {
+                        cell = new HtmlTableCell();
+                        cell.InnerHtml = points.beatmap[beatmap].beatmapName;
+                        row.Cells.Add(cell);
+                    }
+                    else if(i == -1)
+                    {
+                        for (int j = 0; j < 2; j++)
+                        {
+                            cell = new HtmlTableCell();
+                            if (j == 0)
+                            {
+                                cell.InnerHtml = "Team name";
+                            }
+                            else
+                            {
+                                cell.InnerHtml = "Total Points";
+                            }
+
+                            row.Cells.Add(cell);
+                        }
+                    }
+                    else
+                    {
+                        for (int j = 0; j < 2; j++)
+                        {
+                            cell = new HtmlTableCell();
+                            if (j == 0)
+                            {
+                                cell.InnerHtml = points.beatmap[beatmap].Participant[i].name;
+                            }
+                            else
+                            {
+                                cell.InnerHtml = points.beatmap[beatmap].Participant[i].totalPoints;
+                            }
+
+
+
+                            row.Cells.Add(cell);
+                        }
+                    }
+                    
+
+                    // Add the row to the table.
+                    MapResultTable.Rows.Add(row);
+                }
+
+
+
+                // Add the table to the page.
+                this.Controls.Add(MapResultTable);
+            }
         }
         
     }

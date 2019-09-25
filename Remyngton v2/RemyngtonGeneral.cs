@@ -13,7 +13,7 @@ namespace Remyngton_v2
     {
         public static PointsResult pointHistory = new PointsResult();
         enum Category { Score, Maxcombo, Misscount, Accuracy };
-        //StreamReader sr = new StreamReader(FileLoc);
+        public Dictionary<string, string> userList { get; set; }
         
 
         public DeserializeTeams teamList { get; set; }
@@ -54,15 +54,23 @@ namespace Remyngton_v2
                 }
                 else
                 {
+                    Dictionary<string, string> usersDictionary = new Dictionary<string, string>();
+
                     for (int playerNumber = 0; playerNumber < lobbyData.games[gameNumber].scores.Count(); playerNumber++) //in the selected map (game) it looks through each player who played in that map
                     {
-                        //optimization possibility, track which users have already been added and don't request their names if they have already been added to reduce api requests.
                         var userID = lobbyData.games[gameNumber].scores[playerNumber].user_id;
-
                         try
                         {
-                        
-                        
+                            if (!usersDictionary.Keys.Contains(userID)) //if the user ID does not exist in the list yet
+                            {
+                                var userJsonString = "https://osu.ppy.sh/api/get_user?k=0db10863146202c12ca6f6987c98f1ec9d629421&u=" + userID;
+                                var jsonStringUser = new WebClient().DownloadString(userJsonString); //downloads the json data of the user
+                                JArray userJsonArray = JArray.Parse(jsonStringUser);
+                                var userName = (string)userJsonArray[0].SelectToken("username");
+
+                                usersDictionary.Add(userID, userName);
+                            }
+
                             //these 3 codelines need to happen before adding the users to the playertracker, because that will throw an exception if the user already exists and thus skip the rest of the try block
                             User user = new User();
                             user.user_id = userID;
@@ -80,6 +88,7 @@ namespace Remyngton_v2
 
 
                     }
+                    userList = usersDictionary;
                 }
                 pointHistory.map.Add(map);
                 
@@ -362,6 +371,12 @@ namespace Remyngton_v2
                         //Scores[Player, Mapnumber] = 0;
                     }
                 }
+
+                foreach (var team in teamList.Teams)
+                {
+                    teamMisses.Add(new KeyValuePair<string, double>(team.Teamname, team.TeamScore));
+                }
+
                 List<KeyValuePair<string, double>> points;
                 if (Tournament.CustomTeams)
                 {
@@ -490,7 +505,10 @@ namespace Remyngton_v2
                     }
                 }
                 //here the scoring type gets determined, needs to still be implemented in scores/maxcombo/misscount
-
+                foreach (var team in teamList.Teams)
+                {
+                    teamAccs.Add(new KeyValuePair<string, double>(team.Teamname, team.TeamScore));
+                }
                 List<KeyValuePair<string, double>> points;
                 if (Tournament.CustomTeams)
                 {
@@ -542,5 +560,58 @@ namespace Remyngton_v2
                 }
             }
         }
+
+        public SimplifiedPoints GetSimplifiedPoints(PointsResult detailedPoints)
+        {
+            SimplifiedPoints simplifiedPoints = new SimplifiedPoints();
+            for(int map = 0; map < detailedPoints.map.Count; map++)
+            {
+                Beatmap beatmap = new Beatmap();
+
+                beatmap.beatmapName = getMapName(detailedPoints.map[map].beatmap_id);
+                for (int participant = 0; participant < detailedPoints.map[map].users.Count; participant++)
+                {
+                    Participant p = new Participant();
+                    
+                    //the userlist contains all userIDs + usernames of the players in this match, detailedPoints has the userID and with that the username can be found in the userlist dictionary
+                    if(Tournament.CustomTeams)
+                    {
+                        p.name = detailedPoints.map[map].users[participant].user_id; //in customteams the teamname is set as user_id
+                    }
+                    else
+                    {
+                        p.name = userList[detailedPoints.map[map].users[participant].user_id];
+                    }
+                    
+                    int scorePoints = Convert.ToInt32(detailedPoints.map[map].users[participant].scorePoints);
+                    int maxcomboPoints = Convert.ToInt32(detailedPoints.map[map].users[participant].maxcomboPoints);
+                    int countmissPoints = Convert.ToInt32(detailedPoints.map[map].users[participant].countmissPoints);
+                    int accPoints = Convert.ToInt32(detailedPoints.map[map].users[participant].accPoints);
+
+                    p.totalPoints = (scorePoints + maxcomboPoints + countmissPoints + accPoints).ToString();
+
+                    beatmap.Participant.Add(p);
+                }
+                simplifiedPoints.beatmap.Add(beatmap);
+            }
+            
+            return simplifiedPoints;
+        }
+
+        public string getMapName(string mapID)
+        {
+            
+            var userJsonString = "https://osu.ppy.sh/api/get_beatmaps?k=0db10863146202c12ca6f6987c98f1ec9d629421&b=" + mapID;
+            var jsonStringUser = new WebClient().DownloadString(userJsonString); //downloads the json data of the user
+            JArray userJsonArray = JArray.Parse(jsonStringUser);
+            var artist = (string)userJsonArray[0].SelectToken("artist");
+            var songName = (string)userJsonArray[0].SelectToken("title");
+            var diffName = $"[{(string)userJsonArray[0].SelectToken("version")}]";
+            string mapName = $"{artist} - {songName} {diffName}";
+
+            return mapName;
+        }
     }
+
+    
 }

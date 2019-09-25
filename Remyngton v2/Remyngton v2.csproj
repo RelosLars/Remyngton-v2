@@ -186,6 +186,7 @@
       <DependentUpon>About.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="SimplifiedPoints.cs" />
     <Compile Include="Tournament.cs" />
     <Compile Include="Tournaments.aspx.cs">
       <DependentUpon>Tournaments.aspx</DependentUpon>
