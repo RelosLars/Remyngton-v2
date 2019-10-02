@@ -62,6 +62,7 @@ namespace Remyngton_v2
                 }
 
                 PlayerTracker = new Dictionary<string, double>(); //clears values from playertracker
+
             }
             catch (JsonSerializationException)
             {
@@ -106,9 +107,15 @@ namespace Remyngton_v2
 
         protected void DisplaySimplyfiedPoints(SimplifiedPoints points)
         {
+            //on page refresh the html code gets duplicated for some reason, pls fix
+            HtmlGenericControl divcontrol = new HtmlGenericControl();
+            //divcontrol.Attributes["class"] = "some class";
+            divcontrol.TagName = "div";
             for (int beatmap = 0; beatmap < points.beatmap.Count; beatmap++)
             {
+                
                 HtmlTable MapResultTable = new HtmlTable();
+                Label MapName = new Label();
 
                 // Set the table's formatting-related properties.
                 MapResultTable.Border = 1;
@@ -127,9 +134,9 @@ namespace Remyngton_v2
                     row = new HtmlTableRow();
                     if(i == -2)
                     {
-                        cell = new HtmlTableCell();
-                        cell.InnerHtml = points.beatmap[beatmap].beatmapName;
-                        row.Cells.Add(cell);
+                        
+                        MapName.Text = points.beatmap[beatmap].beatmapName;
+
                     }
                     else if(i == -1)
                     {
@@ -170,13 +177,21 @@ namespace Remyngton_v2
                     
 
                     // Add the row to the table.
-                    MapResultTable.Rows.Add(row);
+                    if(row != null)
+                    {
+                        MapResultTable.Rows.Add(row);
+                    }
+                    
                 }
 
-
+                
 
                 // Add the table to the page.
-                this.Controls.Add(MapResultTable);
+                divcontrol.Controls.Add(MapName);
+                divcontrol.Controls.Add(MapResultTable);
+                divcontrol.Controls.Add(new Literal() { ID = "row" + beatmap, Text = "<hr/>" }); //adds an extra linebreak between table
+                this.Controls.Add(divcontrol);
+                
             }
         }
         
