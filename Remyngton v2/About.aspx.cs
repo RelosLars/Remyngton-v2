@@ -111,7 +111,51 @@ namespace Remyngton_v2
             HtmlGenericControl divcontrol = new HtmlGenericControl();
             //divcontrol.Attributes["class"] = "some class";
             divcontrol.TagName = "div";
-            for (int beatmap = 0; beatmap < points.beatmap.Count; beatmap++)
+
+            HtmlTable TotalPointsTable = new HtmlTable();
+            Label MapName = new Label();
+            MapName.Text = "Total Points";
+
+            HtmlTableRow row1;
+            HtmlTableCell cell1;
+            for (int i = -1; i < points.beatmap[beatmap].Participant.Count; i++)
+            {
+                if (i == -1)
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        cell = new HtmlTableCell();
+                        if (j == 0)
+                        {
+                            cell1.InnerHtml = "Team name";
+                        }
+                        else
+                        {
+                            cell1.InnerHtml = "Total Points";
+                        }
+
+                        row1.Cells.Add(cell);
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        cell = new HtmlTableCell();
+                        if (j == 0)
+                        {
+                            cell.InnerHtml = points.beatmap[beatmap].Participant[i].name;
+                        }
+                        else
+                        {
+                            cell.InnerHtml = points.beatmap[beatmap].Participant[i].totalPoints; //yeet
+                        }
+                        row.Cells.Add(cell);
+                    }
+                }
+            }
+
+                for (int beatmap = 0; beatmap < points.beatmap.Count; beatmap++)
             {
                 
                 HtmlTable MapResultTable = new HtmlTable();
