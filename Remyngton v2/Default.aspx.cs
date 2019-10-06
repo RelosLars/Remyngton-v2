@@ -69,7 +69,7 @@ namespace Remyngton_v2
             else
             {
                 Tournament.CustomTeams = true;
-                Tournament.TeamlistLink = TeamlistLink;
+                Tournament.TeamlistLink = Server.MapPath($"~/Tournament Teamlists/{Tournament.TournamentName} Team List.json");
             }
 
 

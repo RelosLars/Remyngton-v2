@@ -52,7 +52,7 @@ namespace Remyngton_v2
                 match.CalculateMaxcombo(lobbyData);
                 match.CalculateMisscount(lobbyData);
                 match.CalculateScore(lobbyData);
-
+                Console.WriteLine(PlayerTracker);
                 DisplaySimplyfiedPoints(match.GetSimplifiedPoints(RemyngtonGeneral.pointHistory)); 
                 
                 Console.WriteLine(PlayerTracker);
@@ -113,18 +113,26 @@ namespace Remyngton_v2
             divcontrol.TagName = "div";
 
             HtmlTable TotalPointsTable = new HtmlTable();
-            Label MapName = new Label();
-            MapName.Text = "Total Points";
+
+            TotalPointsTable.Border = 1;
+            TotalPointsTable.CellPadding = 3;
+            TotalPointsTable.CellSpacing = 3;
+            TotalPointsTable.BorderColor = "black";
+
+            Label TotalPointsLabel = new Label();
+            TotalPointsLabel.Text = "Total Points";
 
             HtmlTableRow row1;
             HtmlTableCell cell1;
-            for (int i = -1; i < points.beatmap[beatmap].Participant.Count; i++)
+            var PlayerTrackerList = PlayerTracker.ToList();
+            for (int i = -1; i < PlayerTracker.Count; i++)
             {
+                row1 = new HtmlTableRow();
                 if (i == -1)
                 {
                     for (int j = 0; j < 2; j++)
                     {
-                        cell = new HtmlTableCell();
+                        cell1 = new HtmlTableCell();
                         if (j == 0)
                         {
                             cell1.InnerHtml = "Team name";
@@ -134,28 +142,36 @@ namespace Remyngton_v2
                             cell1.InnerHtml = "Total Points";
                         }
 
-                        row1.Cells.Add(cell);
+                        row1.Cells.Add(cell1);
                     }
                 }
                 else
                 {
                     for (int j = 0; j < 2; j++)
                     {
-                        cell = new HtmlTableCell();
+                        cell1 = new HtmlTableCell();
                         if (j == 0)
                         {
-                            cell.InnerHtml = points.beatmap[beatmap].Participant[i].name;
+                            cell1.InnerHtml = PlayerTrackerList[i].Key;
                         }
                         else
                         {
-                            cell.InnerHtml = points.beatmap[beatmap].Participant[i].totalPoints; //yeet
+                            cell1.InnerHtml = PlayerTrackerList[i].Value.ToString();
                         }
-                        row.Cells.Add(cell);
+                        row1.Cells.Add(cell1);
                     }
                 }
-            }
 
-                for (int beatmap = 0; beatmap < points.beatmap.Count; beatmap++)
+                if (row1 != null)
+                {
+                    TotalPointsTable.Rows.Add(row1);
+                }
+            }
+            divcontrol.Controls.Add(TotalPointsLabel);
+            divcontrol.Controls.Add(TotalPointsTable);
+
+
+            for (int beatmap = 0; beatmap < points.beatmap.Count; beatmap++)
             {
                 
                 HtmlTable MapResultTable = new HtmlTable();
@@ -193,7 +209,7 @@ namespace Remyngton_v2
                             }
                             else
                             {
-                                cell.InnerHtml = "Total Points";
+                                cell.InnerHtml = "Points";
                             }
 
                             row.Cells.Add(cell);
