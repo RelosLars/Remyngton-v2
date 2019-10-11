@@ -1,0 +1,24 @@
+{
+  "Teams": [
+    {
+      "Teamname": "Canada",
+      "Player1": "10184558",
+      "Player2": "8196548"
+    },
+    {
+      "Teamname": "Poland",
+      "Player1": "7192659",
+      "Player2": "10673709"
+    },
+    {
+      "Teamname": "Russia",
+      "Player1": "7995027",
+      "Player2": "9516678"
+    },
+    {
+      "Teamname": "Mix",
+      "Player1": "8764551",
+      "Player2": "11704595"
+    }
+  ]
+}

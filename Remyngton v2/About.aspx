@@ -2,6 +2,6 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     
-    <asp:Button ID="refreshMatch" Text="Refresh" runat="server" />
+    <asp:Button ID="showDetailedPoints" Text="Show detailed points" runat="server" OnClick="showDetailedPoints_Click" />
     
 </asp:Content>

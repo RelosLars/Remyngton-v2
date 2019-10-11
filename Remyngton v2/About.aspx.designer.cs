@@ -13,12 +13,12 @@ namespace Remyngton_v2 {
     public partial class About {
         
         /// <summary>
-        /// refreshMatch-Steuerelement
+        /// showDetailedPoints-Steuerelement
         /// </summary>
         /// <remarks>
         /// Automatisch generiertes Feld
         /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button refreshMatch;
+        protected global::System.Web.UI.WebControls.Button showDetailedPoints;
     }
 }

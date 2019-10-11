@@ -60,7 +60,7 @@ namespace Remyngton_v2
                 {
                     ArchiveMatch(RemyngtonGeneral.pointHistory, lobbyData.match.match_id, lobbyData.match.name);
                 }
-
+                
                 PlayerTracker = new Dictionary<string, double>(); //clears values from playertracker
 
             }
@@ -176,7 +176,7 @@ namespace Remyngton_v2
                 
                 HtmlTable MapResultTable = new HtmlTable();
                 Label MapName = new Label();
-
+                
                 // Set the table's formatting-related properties.
                 MapResultTable.Border = 1;
                 MapResultTable.CellPadding = 3;
@@ -254,6 +254,11 @@ namespace Remyngton_v2
                 
             }
         }
-        
+
+        protected void showDetailedPoints_Click(object sender, EventArgs e)
+        {
+            DetailedPointsView.pointHistory = RemyngtonGeneral.pointHistory; //gives the pointhistory to the different page
+            Response.Redirect("DetailedPointsView.aspx");
+        }
     }
 }

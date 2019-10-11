@@ -14,12 +14,14 @@ namespace Remyngton_v2
 {
     public partial class _Default : Page
     {
-        public string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
+        public static string connectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)
             {
+                connectionString = $@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename = {Server.MapPath("\\App_Data\\Remyngton.mdf")}; Integrated Security = True";
+                
                 List<string> tournamentList = new List<string>();
 
                 string selectStatement = "select TournamentName from tbl_Tournaments";

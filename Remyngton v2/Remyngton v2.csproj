@@ -26,6 +26,7 @@
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <includesetaclproviderondestination>False</includesetaclproviderondestination>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -35,6 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <includesetaclproviderondestination>False</includesetaclproviderondestination>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -116,6 +118,7 @@
     <Content Include="App_Data\Remyngton_log.ldf">
       <DependentUpon>Remyngton.mdf</DependentUpon>
     </Content>
+    <Content Include="DetailedPointsView.aspx" />
     <Content Include="Tournaments.aspx" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -137,6 +140,10 @@
     <Content Include="Match.json" />
     <Content Include="..\..\..\..\Downloads\Teamlist.json" />
     <Content Include="Mappool.json" />
+    <Content Include="EditTournaments.aspx" />
+    <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\CustomProfile1.pubxml" />
+    <None Include="Properties\PublishProfiles\CustomProfile2.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -176,6 +183,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeserializeTeams.cs" />
+    <Compile Include="DetailedPointsView.aspx.cs">
+      <DependentUpon>DetailedPointsView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DetailedPointsView.aspx.designer.cs">
+      <DependentUpon>DetailedPointsView.aspx</DependentUpon>
+    </Compile>
     <Compile Include="PointCalculation.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="About.aspx.cs">
@@ -229,6 +243,13 @@
     </Compile>
     <Compile Include="ViewSwitcher.ascx.designer.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="EditTournaments.aspx.cs">
+      <DependentUpon>EditTournaments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditTournaments.aspx.designer.cs">
+      <DependentUpon>EditTournaments.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -67,24 +67,6 @@ namespace Remyngton_v2 {
         protected global::System.Web.UI.WebControls.FileUpload FileUploadTeamlist;
         
         /// <summary>
-        /// Label3-Steuerelement
-        /// </summary>
-        /// <remarks>
-        /// Automatisch generiertes Feld
-        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label3;
-        
-        /// <summary>
-        /// FileUploadMappool-Steuerelement
-        /// </summary>
-        /// <remarks>
-        /// Automatisch generiertes Feld
-        /// Zum Ändern Felddeklaration aus der Designerdatei in eine Code-Behind-Datei verschieben.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload FileUploadMappool;
-        
-        /// <summary>
         /// CreateTournament-Steuerelement
         /// </summary>
         /// <remarks>
