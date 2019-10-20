@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -10,10 +11,9 @@ namespace Remyngton_v2
 {
     public partial class WebForm1 : System.Web.UI.Page
     {
-        public string connectionString;
+        public static string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
-            connectionString = $@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename = {Server.MapPath("\\App_Data\\Remyngton.mdf")}; Integrated Security = True";
             List<string> tournamentList = new List<string>();
 
             string selectStatement = "select TournamentName from tbl_Tournaments";

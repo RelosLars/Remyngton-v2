@@ -12,11 +12,11 @@ namespace Remyngton_v2
 {
     public partial class Contact : Page
     {
-        public string connectionString;
+        public static string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            connectionString = $@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename = {Server.MapPath("\\App_Data\\Remyngton.mdf")}; Integrated Security = True";
+        
         }
 
         protected void CreateTournament_Click(object sender, EventArgs e)
